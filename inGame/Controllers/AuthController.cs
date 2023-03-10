@@ -1,8 +1,9 @@
 ﻿using inGame.Interfaces;
 using inGame.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 
 namespace inGame.Controllers
@@ -12,9 +13,11 @@ namespace inGame.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
-        public AuthController(IUserRepository userRepository)
+        private readonly IConfiguration _configuration;
+        public AuthController(IUserRepository userRepository, IConfiguration configuration)
         {
             _userRepository = userRepository;
+            _configuration = configuration;
         }
         [HttpPost("SignUp")]
         public async Task<ActionResult<User>> Register(UserDto request)
@@ -39,7 +42,8 @@ namespace inGame.Controllers
                 return NotFound("Пользователь не найден");
             if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
                 return BadRequest("Неверный пароль");
-            return Ok("My token");
+            string token = CreateToken(user);
+            return Ok(token);
         }
 
         // Методы
@@ -58,6 +62,24 @@ namespace inGame.Controllers
                 var computeHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
                 return computeHash.SequenceEqual(passwordHash);
             }
+        }
+        private string CreateToken(User user)
+        {
+            List<Claim> claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
+            var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(_configuration.GetSection("AppSettings:Token").Value));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
+
+            var token = new JwtSecurityToken(
+                claims: claims,
+                signingCredentials: creds,
+                expires: DateTime.UtcNow.AddDays(1)
+                );
+            var jwt = new JwtSecurityTokenHandler().WriteToken(token);
+            return jwt;
         }
     }
 }
