@@ -1,4 +1,6 @@
 using inGame.Data;
+using inGame.Interfaces;
+using inGame.Repository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +15,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(@"Server=DESKTOP-CHODUQK\SQLEXPRESS;Database=inGame;Trusted_Connection=True;TrustServerCertificate=True;");
 });
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 
