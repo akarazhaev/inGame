@@ -24,6 +24,12 @@ namespace inGame.Repository
             return Save();
         }
 
+        public async Task<User> GetByUsernameAsync(string username)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
+            return user;
+        }
+
         public async Task<IEnumerable<User>> GetUsersAsync()
         {
             var users = await _context.Users.ToListAsync();

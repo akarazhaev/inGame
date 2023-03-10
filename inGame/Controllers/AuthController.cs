@@ -1,6 +1,8 @@
-﻿using inGame.Models;
+﻿using inGame.Interfaces;
+using inGame.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using System.Security.Cryptography;
 
 namespace inGame.Controllers
@@ -9,17 +11,35 @@ namespace inGame.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly IUserRepository _userRepository;
+        public AuthController(IUserRepository userRepository)
+        {
+            _userRepository = userRepository;
+        }
         [HttpPost("SignUp")]
         public async Task<ActionResult<User>> Register(UserDto request)
         {
             if (request == null)
-                return BadRequest(request);
-            return Ok();
+                return BadRequest();
+            CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            User user = new User
+            {
+                Username = request.Username,
+                PasswordHash = passwordHash,
+                PasswordSalt = passwordSalt
+            };
+            _userRepository.Add(user);
+            return Ok(user);
         }
         [HttpPost("SignIn")]
         public async Task<ActionResult<string>> Login(UserDto request)
         {
-            return Ok();
+            var user = await _userRepository.GetByUsernameAsync(request.Username);
+            if (user == null)
+                return NotFound("Пользователь не найден");
+            if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
+                return BadRequest("Неверный пароль");
+            return Ok("My token");
         }
 
         // Методы
