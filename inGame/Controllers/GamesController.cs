@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using inGame.Interfaces;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace inGame.Controllers
@@ -7,5 +8,10 @@ namespace inGame.Controllers
     [ApiController]
     public class GamesController : ControllerBase
     {
+        private readonly IGameRepository _gameRepository;
+        public GamesController(IGameRepository gameRepository)
+        {
+            _gameRepository = gameRepository;
+        }
     }
 }

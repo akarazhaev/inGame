@@ -18,8 +18,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(@"Server=DESKTOP-CHODUQK\SQLEXPRESS;Database=inGame;Trusted_Connection=True;TrustServerCertificate=True;");
 });
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+
+// Added service for repository
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IGameRepository, GameRepository>();
 
 // Added services for Authentication and Authorization
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
