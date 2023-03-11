@@ -58,6 +58,20 @@ namespace inGame.Controllers
             }
             return Ok();
         }
+        [HttpPost("refresh-token")]
+        public async Task<ActionResult<string>> RefreshToken()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+            var user = await _userRepository.GetByJwtTokenAsync(refreshToken);
+            if (user == null)
+                return Unauthorized("Неверный токен");
+            else if (user!.TokenExpires < DateTime.Now)
+                return Unauthorized("Токен истек");
+            var token = CreateToken(user);
+            var newRefreshToken = GenerateRefreshToken();
+            SetRefreshToken(newRefreshToken, user);
+            return Ok(token);
+        }
         // Методы
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
