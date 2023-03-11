@@ -65,3 +65,4 @@ C:\Users\Ариф\source\repos\inGame\inGame\obj\Debug\net6.0\refint\inGame.dll
 C:\Users\Ариф\source\repos\inGame\inGame\obj\Debug\net6.0\inGame.pdb
 C:\Users\Ариф\source\repos\inGame\inGame\obj\Debug\net6.0\inGame.genruntimeconfig.cache
 C:\Users\Ариф\source\repos\inGame\inGame\obj\Debug\net6.0\ref\inGame.dll
+C:\Users\Ариф\source\repos\inGame\inGame\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

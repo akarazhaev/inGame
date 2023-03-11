@@ -43,9 +43,21 @@ namespace inGame.Controllers
             if (!VerifyPasswordHash(request.Password, user.PasswordHash, user.PasswordSalt))
                 return BadRequest("Неверный пароль");
             string token = CreateToken(user);
-            return Ok(token);
-        }
 
+            var refreshToken = GenerateRefreshToken();
+            SetRefreshToken(refreshToken, user);
+
+            return Ok();
+        }
+        [HttpPost("SignOut")]
+        public async Task<ActionResult> Exit()
+        {
+            if (Request.Cookies.ContainsKey("refreshToken"))
+            {
+                Response.Cookies.Delete("refreshToken");
+            }
+            return Ok();
+        }
         // Методы
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
@@ -80,6 +92,29 @@ namespace inGame.Controllers
                 );
             var jwt = new JwtSecurityTokenHandler().WriteToken(token);
             return jwt;
+        }
+        private RefreshToken GenerateRefreshToken()
+        {
+            var refreshToken = new RefreshToken
+            {
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                Expires = DateTime.UtcNow.AddDays(7),
+                Created = DateTime.UtcNow
+            };
+            return refreshToken;
+        }
+        private void SetRefreshToken(RefreshToken newRefreshToken, User user)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = newRefreshToken.Expires
+            };
+            Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOptions);
+
+            user.RefreshToken = newRefreshToken.Token;
+            user.TokenCreated = newRefreshToken.Created;
+            user.TokenExpires = newRefreshToken.Expires;
         }
     }
 }
