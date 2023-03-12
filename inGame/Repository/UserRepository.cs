@@ -36,6 +36,12 @@ namespace inGame.Repository
             return user;
         }
 
+        public async Task<User> GetUserByIdAsync(int id)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            return user;
+        }
+
         public async Task<IEnumerable<User>> GetUsersAsync()
         {
             var users = await _context.Users.ToListAsync();

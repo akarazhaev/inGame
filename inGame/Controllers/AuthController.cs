@@ -1,5 +1,6 @@
 ﻿using inGame.Interfaces;
 using inGame.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -57,6 +58,20 @@ namespace inGame.Controllers
                 Response.Cookies.Delete("refreshToken");
             }
             return Ok();
+        }
+        [HttpPost("ChangePassword")/*, Authorize*/]
+        public async Task<ActionResult> ChangePassword(int id, UserDto request)
+        {
+            var user = await _userRepository.GetUserByIdAsync(id);
+            if (user == null)
+                return NotFound();
+            if (request == null)
+                return BadRequest();
+            CreatePasswordHash(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            user.PasswordHash = passwordHash;
+            user.PasswordSalt = passwordSalt;
+            _userRepository.Update(user);
+            return Ok("Пароль изменен");
         }
         [HttpPost("refresh-token")]
         public async Task<ActionResult<string>> RefreshToken()
