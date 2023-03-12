@@ -36,6 +36,12 @@ namespace inGame.Repository
             return game;
         }
 
+        public async Task<IEnumerable<Game>> GetGamesByGenreId(int id)
+        {
+            var games = await _context.Games.Where(g => g.GenreId == id).ToListAsync();
+            return games;
+        }
+
         public bool Save()
         {
             var saved = _context.SaveChanges();

@@ -29,6 +29,14 @@ namespace inGame.Controllers
                 return NotFound();
             return Ok(game);
         }
+        [HttpGet("Games/ByGenres/{id}")]
+        public async Task<ActionResult<IEnumerable<Game>>> GamesByGenre(int id)
+        {
+            var games = await _gameRepository.GetGamesByGenreId(id);
+            if (games.Count() == 0)
+                return Ok(games);
+            return Ok(games);
+        }
         [HttpPost("AddGameToList"), Authorize(Roles = "Admin")]
         public async Task<ActionResult> AddGameToList(Game game)
         {
