@@ -71,6 +71,7 @@ namespace inGame.Controllers
             user.PasswordHash = passwordHash;
             user.PasswordSalt = passwordSalt;
             _userRepository.Update(user);
+            Response.Cookies.Delete("refreshToken");
             return Ok("Пароль изменен");
         }
         [HttpPost("refresh-token")]
